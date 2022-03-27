@@ -7,10 +7,13 @@ import (
 	"net/http"
 )
 
+const PORT = "3002"
+
 func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/post", controller.GetPost).Methods("GET")
 	r.HandleFunc("/post/{postId}/comments", controller.GetCommentByPost).Methods("GET")
-	log.Fatal(http.ListenAndServe(":3002", r))
+	log.Printf("client connect to http://localhost:%s/", PORT)
+	log.Fatal(http.ListenAndServe(":"+PORT, r))
 }

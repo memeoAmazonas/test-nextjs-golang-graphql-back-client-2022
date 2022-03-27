@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func GetPost(w http.ResponseWriter, _ *http.Request) {
+func GetPost(w http.ResponseWriter, r *http.Request) {
 	post, err := client.GetPost()
 	if err != nil {
 		return

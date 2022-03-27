@@ -6,42 +6,69 @@ import (
 	"github.com/memeoAmazonas/test-nextjs-golang-graphql-back-client-2022/internal/model"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"strconv"
 )
 
 func GetPost() ([]*model.Post, error) {
+
 	var response []*model.Post
-	log.Info("get post client")
-	res, err := http.Get("http://jsonplaceholder.typicode.com/posts")
-	if err != nil {
-		log.Error("Get post call", err.Error())
-		return nil, err
+	err := fetch("http://jsonplaceholder.typicode.com/posts", "posts list", &response)
+	if err == nil {
+		users, err := getUsers()
+		if err == nil {
+			for _, it := range response {
+				act := users[it.UserId]
+				if act != nil {
+					com, err := GetCommentByPost(strconv.Itoa(it.UserId))
+					if err == nil {
+						it.Comments = len(com)
+					}
+					it.User = users[it.UserId]
+				} else {
+					it.User = &model.User{
+						Id:    0,
+						Name:  "anonymous",
+						Email: "anonymous@anonymous.com",
+					}
+				}
+			}
+		}
 	}
-	log.Info("success call get post")
-	defer res.Body.Close()
-	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		log.Error("Parse data get post", err.Error())
-		return nil, err
-	}
-	log.Info("successfull get post")
-	return response, nil
+	return response, err
 }
 func GetCommentByPost(id string) ([]*model.Comment, error) {
 	var response []*model.Comment
-	log.Info("get comments by post client")
-	res, err := http.Get(fmt.Sprintf("http://jsonplaceholder.typicode.com/posts/%s/comments", id))
+	err := fetch(fmt.Sprintf("http://jsonplaceholder.typicode.com/posts/%s/comments", id), "comments by post", &response)
 
+	return response, err
+}
+func getUsers() (map[int]*model.User, error) {
+	users := make(map[int]*model.User)
+	var response []*model.User
+	err := fetch("http://jsonplaceholder.typicode.com/users", "users ", &response)
 	if err != nil {
-		log.Error("Get comments by post call", err.Error())
-		return nil, err
+		return users, err
 	}
-	log.Info("success call get comments by post")
-
-	defer res.Body.Close()
-
-	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		log.Error("Parse data comments by post", err.Error())
-		return nil, err
+	for _, it := range response {
+		if users[it.Id] == nil {
+			users[it.Id] = it
+		}
 	}
-	return response, nil
+	return users, nil
 
+}
+func fetch(url, logKey string, decode interface{}) error {
+	log.Info("get " + logKey)
+	res, err := http.Get(url)
+	if err != nil {
+		log.Error("Get "+logKey, err.Error())
+		return err
+	}
+	log.Info("success call " + logKey)
+	if err := json.NewDecoder(res.Body).Decode(&decode); err != nil {
+		log.Error("Parse data "+logKey, err.Error())
+		return err
+	}
+	log.Info("successfull get " + logKey)
+	return nil
 }
