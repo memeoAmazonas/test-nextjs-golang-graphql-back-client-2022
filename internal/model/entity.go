@@ -10,10 +10,10 @@ type Post struct {
 }
 
 type Comment struct {
-	PostId int    `json:"postId"`
-	Name   string `json:"name"`
-	Body   string `json:"body"`
-	Email  string `json:"email"`
+	PostId int    `json:"postId" bson:"postId"`
+	Name   string `json:"name" bson:"name"`
+	Body   string `json:"body" bson:"body"`
+	Email  string `json:"email" bson:"email"`
 }
 type User struct {
 	Id    int    `json:"id"`

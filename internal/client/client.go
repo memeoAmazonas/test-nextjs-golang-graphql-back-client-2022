@@ -39,7 +39,13 @@ func GetPost() ([]*model.Post, error) {
 func GetCommentByPost(id string) ([]*model.Comment, error) {
 	var response []*model.Comment
 	err := fetch(fmt.Sprintf("http://jsonplaceholder.typicode.com/posts/%s/comments", id), "comments by post", &response)
-
+	send, _ := strconv.Atoi(id)
+	locales, err := FindComment(send)
+	if err == nil {
+		for _, it := range locales {
+			response = append(response, it)
+		}
+	}
 	return response, err
 }
 func getUsers() (map[int]*model.User, error) {
