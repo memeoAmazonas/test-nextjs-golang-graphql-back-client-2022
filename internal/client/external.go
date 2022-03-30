@@ -19,12 +19,13 @@ func GetPost() ([]*model.Post, error) {
 			for _, it := range response {
 				act := users[it.UserId]
 				if act != nil {
-					com, err := GetCommentByPost(strconv.Itoa(it.UserId))
+					com, err := GetCommentByPost(strconv.Itoa(it.Id))
 					if err == nil {
 						it.Comments = len(com)
 					}
-					it.User = users[it.UserId]
+					it.User = act
 				} else {
+
 					it.User = &model.User{
 						Id:    0,
 						Name:  "anonymous",
@@ -34,7 +35,11 @@ func GetPost() ([]*model.Post, error) {
 			}
 		}
 	}
-	return response, err
+	results, err := FindPost(response)
+	if err != nil {
+		log.Error("Add local post")
+	}
+	return results, err
 }
 func GetCommentByPost(id string) ([]*model.Comment, error) {
 	var response []*model.Comment

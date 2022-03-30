@@ -16,9 +16,12 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/post", controller.GetPost).Methods("GET")
+	r.HandleFunc("/post", controller.CreatePost).Methods("POST")
+	r.HandleFunc("/user", controller.CreateUser).Methods("POST")
 	r.HandleFunc("/post/{postId}/comments", controller.GetCommentByPost).Methods("GET")
 	r.HandleFunc("/comment", controller.CreateComment).Methods("POST")
 	r.HandleFunc("/comment/{postId}", controller.FindComment).Methods("GET")
+
 	log.Printf("client connect to http://localhost:%s/", PORT)
 	log.Fatal(http.ListenAndServe(":"+PORT, r))
 }

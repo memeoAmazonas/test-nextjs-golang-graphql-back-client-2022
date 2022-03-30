@@ -15,6 +15,11 @@ type Comment struct {
 	Body   string `json:"body" bson:"body"`
 	Email  string `json:"email" bson:"email"`
 }
+type NewPost struct {
+	UserID   int    `json:"userId"`
+	NameUser string `json:"nameUser"`
+	Body     string `json:"body"`
+}
 type User struct {
 	Id    int    `json:"id"`
 	Name  string `json:"name"`
