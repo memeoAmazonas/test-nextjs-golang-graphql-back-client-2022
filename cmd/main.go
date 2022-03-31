@@ -17,8 +17,11 @@ func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/post", controller.GetPost).Methods("GET")
 	r.HandleFunc("/post", controller.CreatePost).Methods("POST")
-	r.HandleFunc("/user", controller.CreateUser).Methods("POST")
 	r.HandleFunc("/post/{postId}/comments", controller.GetCommentByPost).Methods("GET")
+
+	r.HandleFunc("/user", controller.CreateUser).Methods("POST")
+	r.HandleFunc("/user/{email}", controller.FindUser).Methods("GET")
+
 	r.HandleFunc("/comment", controller.CreateComment).Methods("POST")
 	r.HandleFunc("/comment/{postId}", controller.FindComment).Methods("GET")
 

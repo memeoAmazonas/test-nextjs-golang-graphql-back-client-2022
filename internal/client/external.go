@@ -14,6 +14,10 @@ func GetPost() ([]*model.Post, error) {
 	var response []*model.Post
 	err := fetch("http://jsonplaceholder.typicode.com/posts", "posts list", &response)
 	if err == nil {
+		results, err := findPost()
+		if err == nil {
+			response = append(results, response...)
+		}
 		users, err := getUsers()
 		if err == nil {
 			for _, it := range response {
@@ -35,12 +39,10 @@ func GetPost() ([]*model.Post, error) {
 			}
 		}
 	}
-	results, err := FindPost(response)
-	if err != nil {
-		log.Error("Add local post")
-	}
-	return results, err
+
+	return response, err
 }
+
 func GetCommentByPost(id string) ([]*model.Comment, error) {
 	var response []*model.Comment
 	err := fetch(fmt.Sprintf("http://jsonplaceholder.typicode.com/posts/%s/comments", id), "comments by post", &response)
@@ -53,12 +55,17 @@ func GetCommentByPost(id string) ([]*model.Comment, error) {
 	}
 	return response, err
 }
+
 func getUsers() (map[int]*model.User, error) {
 	users := make(map[int]*model.User)
 	var response []*model.User
 	err := fetch("http://jsonplaceholder.typicode.com/users", "users ", &response)
 	if err != nil {
-		return users, err
+		return nil, err
+	}
+	locals, err := getUsersLocal()
+	if err == nil {
+		response = append(response, locals...)
 	}
 	for _, it := range response {
 		if users[it.Id] == nil {
@@ -66,8 +73,8 @@ func getUsers() (map[int]*model.User, error) {
 		}
 	}
 	return users, nil
-
 }
+
 func fetch(url, logKey string, decode interface{}) error {
 	log.Info("get " + logKey)
 	res, err := http.Get(url)

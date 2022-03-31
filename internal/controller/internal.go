@@ -2,7 +2,6 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/memeoAmazonas/test-nextjs-golang-graphql-back-client-2022/internal/client"
 	"github.com/memeoAmazonas/test-nextjs-golang-graphql-back-client-2022/internal/mapper"
@@ -68,7 +67,7 @@ func CreatePost(w http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	_, err := client.CreatePost(mapper.NewPostMapper(post))
+	result, err := client.CreatePost(mapper.NewPostMapper(post))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Error("Create post ", err)
@@ -77,8 +76,9 @@ func CreatePost(w http.ResponseWriter, request *http.Request) {
 	}
 	log.Info("Create post successfully")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode("success")
+	json.NewEncoder(w).Encode(result)
 }
+
 func CreateUser(w http.ResponseWriter, request *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var user *model.User
@@ -89,8 +89,7 @@ func CreateUser(w http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(w).Encode(err)
 		return
 	}
-	id, err := client.CreateUser(user)
-	fmt.Println("id", id)
+	send, err := client.CreateUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Error("Create user ", err)
@@ -99,5 +98,27 @@ func CreateUser(w http.ResponseWriter, request *http.Request) {
 	}
 	log.Info("Create user successfully")
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(id)
+	json.NewEncoder(w).Encode(send)
+}
+
+func FindUser(w http.ResponseWriter, request *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	log.Info("Get user")
+	vars := mux.Vars(request)
+	email := vars["email"]
+	if email == "" {
+		log.Error("Get user ", "email required")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode("Email required")
+	}
+	result, err := client.GetUser(email)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Error("Get user ", err)
+		json.NewEncoder(w).Encode(err)
+	}
+
+	log.Info("Get user succesfully")
+
+	json.NewEncoder(w).Encode(result)
 }

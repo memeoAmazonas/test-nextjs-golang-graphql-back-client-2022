@@ -48,3 +48,8 @@ func Query(client *mongo.Client, ctx context.Context, dataBase, col string, filt
 	result, err = collection.Find(ctx, filter)
 	return result, err
 }
+func FindOne(client *mongo.Client, ctx context.Context, dataBase, col string, filter bson.D) (result *mongo.SingleResult, err error) {
+	collection := client.Database(dataBase).Collection(col)
+	one := collection.FindOne(ctx, filter)
+	return one, nil
+}
