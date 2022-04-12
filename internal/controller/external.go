@@ -12,7 +12,6 @@ func GetPost(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(post)
 }
 
@@ -23,6 +22,5 @@ func GetCommentByPost(w http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(comments)
 }

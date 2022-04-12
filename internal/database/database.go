@@ -2,7 +2,9 @@ package database
 
 import (
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -31,13 +33,15 @@ func ping(client *mongo.Client, ctx context.Context) error {
 	log.Info("database connected successfully")
 	return nil
 }
-func GetConnection() {
-	client, ctx, cancel, err := Connect("mongodb://localhost:27017")
+func GetConnection() error {
+	url_db := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := Connect(url_db)
 	if err != nil {
 		log.Error(err.Error())
+		return err
 	}
 	defer Close(client, ctx, cancel)
-	ping(client, ctx)
+	return ping(client, ctx)
 }
 func SaveOne(client *mongo.Client, ctx context.Context, dataBase, col string, doc interface{}) (*mongo.InsertOneResult, error) {
 	collection := client.Database(dataBase).Collection(col)

@@ -8,25 +8,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"math/rand"
+	"os"
 	"time"
 )
 
-const (
-	COMMENT = "comments"
-	POST    = "posts"
-	USER    = "user"
-	LIKE    = "like"
-	DB      = "test_marzo_go_nextjs_grahql"
-)
-
 func CreateComment(comment *model.Comment) (interface{}, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
 	defer database.Close(client, ctx, cancel)
-	cursor, err := database.SaveOne(client, ctx, DB, COMMENT, comment)
+	cursor, err := database.SaveOne(client, ctx, os.Getenv("DB"), os.Getenv("COMMENT"), comment)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -35,9 +29,10 @@ func CreateComment(comment *model.Comment) (interface{}, error) {
 }
 
 func FindComment(id int) ([]*model.Comment, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
-	cursor, err := database.Query(client, ctx, DB, COMMENT, bson.D{{"postId", id}}, nil)
+	cursor, err := database.Query(client, ctx, os.Getenv("DB"), os.Getenv("COMMENT"), bson.D{{"postId", id}}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,10 +49,11 @@ func FindComment(id int) ([]*model.Comment, error) {
 }
 
 func findPost() ([]*model.Post, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
 	opts := options.Find().SetSort(bson.D{{"date", -1}})
-	cursor, err := database.Query(client, ctx, DB, POST, bson.D{}, opts)
+	cursor, err := database.Query(client, ctx, os.Getenv("DB"), os.Getenv("POST"), bson.D{}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -74,14 +70,15 @@ func findPost() ([]*model.Post, error) {
 }
 
 func CreatePost(post *model.Post) (*model.Post, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
 	post.Date = time.Now()
 	defer database.Close(client, ctx, cancel)
-	_, err = database.SaveOne(client, ctx, DB, POST, post)
+	_, err = database.SaveOne(client, ctx, os.Getenv("DB"), os.Getenv("POST"), post)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
@@ -91,19 +88,22 @@ func CreatePost(post *model.Post) (*model.Post, error) {
 
 func CreateUser(user *model.User) (int, error) {
 	uuid := rand.Intn(2000000)
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+
 	user.Id = uuid
 	exist, err := GetUser(user.Email)
 	if exist != nil {
 		log.Error("User exist")
 		return -2, err
 	}
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	if err != nil {
 		log.Error(err.Error())
 		return -1, err
 	}
 	defer database.Close(client, ctx, cancel)
-	_, err = database.SaveOne(client, ctx, DB, USER, user)
+	_, err = database.SaveOne(client, ctx, os.Getenv("DB"), os.Getenv("USER"), user)
 	if err != nil {
 		log.Error(err.Error())
 		return -1, err
@@ -112,9 +112,10 @@ func CreateUser(user *model.User) (int, error) {
 }
 
 func getUsersLocal() ([]*model.User, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, err := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
-	cursor, err := database.Query(client, ctx, DB, USER, bson.D{}, nil)
+	cursor, err := database.Query(client, ctx, os.Getenv("DB"), os.Getenv("USER"), bson.D{}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -131,9 +132,10 @@ func getUsersLocal() ([]*model.User, error) {
 }
 
 func GetUser(email string) (*model.User, error) {
-	client, ctx, cancel, _ := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, _ := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
-	user, err := database.FindOne(client, ctx, DB, USER, bson.D{{"email", email}})
+	user, err := database.FindOne(client, ctx, os.Getenv("DB"), os.Getenv("USER"), bson.D{{"email", email}})
 	if err != nil {
 		return nil, err
 	}
@@ -149,9 +151,10 @@ func GetUser(email string) (*model.User, error) {
 }
 
 func CreateLike(lik *model.Like) (bool, error) {
-	client, ctx, cancel, _ := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, _ := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
-	like, err := database.FindOne(client, ctx, DB, LIKE, bson.D{{"postid", lik.PostId}})
+	like, err := database.FindOne(client, ctx, os.Getenv("DB"), os.Getenv("LIKE"), bson.D{{"postid", lik.PostId}})
 	if err != nil {
 		return false, err
 	}
@@ -159,7 +162,7 @@ func CreateLike(lik *model.Like) (bool, error) {
 	if err := like.Decode(&v); err != nil {
 		if err.Error() == "mongo: no documents in result" {
 
-			if _, er := database.SaveOne(client, ctx, DB, LIKE, lik); er != nil {
+			if _, er := database.SaveOne(client, ctx, os.Getenv("DB"), os.Getenv("LIKE"), lik); er != nil {
 				return false, er
 			}
 			return true, nil
@@ -167,7 +170,7 @@ func CreateLike(lik *model.Like) (bool, error) {
 			return false, err
 		}
 	}
-	drop, err := database.DeleteOne(client, ctx, DB, LIKE, bson.D{{"postid", lik.PostId}})
+	drop, err := database.DeleteOne(client, ctx, os.Getenv("DB"), os.Getenv("LIKE"), bson.D{{"postid", lik.PostId}})
 
 	if err != nil {
 		return false, err
@@ -178,7 +181,8 @@ func CreateLike(lik *model.Like) (bool, error) {
 }
 
 func UpdatePostLike(id int, update bool) error {
-	client, ctx, cancel, _ := database.Connect("mongodb://localhost:27017")
+	UrlDb := fmt.Sprintf("%s:%s", os.Getenv("URL_DB"), os.Getenv("PORT_DB"))
+	client, ctx, cancel, _ := database.Connect(UrlDb)
 	defer database.Close(client, ctx, cancel)
 	filter := bson.D{{"id", id}}
 	toSet := -1
@@ -190,7 +194,7 @@ func UpdatePostLike(id int, update bool) error {
 			{"likes", toSet},
 		}},
 	}
-	send, err := database.UpdateOne(client, ctx, DB, POST, filter, upd)
+	send, err := database.UpdateOne(client, ctx, os.Getenv("DB"), os.Getenv("POST"), filter, upd)
 	if err != nil {
 		return err
 	}

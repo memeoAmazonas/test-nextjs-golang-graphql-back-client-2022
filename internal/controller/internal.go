@@ -58,7 +58,6 @@ func FindComment(w http.ResponseWriter, request *http.Request) {
 }
 
 func CreatePost(w http.ResponseWriter, request *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var post *model.NewPost
 	log.Info("Create post")
 	if err := json.NewDecoder(request.Body).Decode(&post); err != nil {
@@ -124,7 +123,6 @@ func FindUser(w http.ResponseWriter, request *http.Request) {
 }
 
 func CreateLike(w http.ResponseWriter, request *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
 	var like *model.Like
 	log.Info("Create like")
 	if err := json.NewDecoder(request.Body).Decode(&like); err != nil {

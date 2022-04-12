@@ -6,13 +6,15 @@ import (
 	"github.com/memeoAmazonas/test-nextjs-golang-graphql-back-client-2022/internal/model"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
 	"strconv"
 )
 
 func GetPost() ([]*model.Post, error) {
 
 	var response []*model.Post
-	err := fetch("http://jsonplaceholder.typicode.com/posts", "posts list", &response)
+	err := fetch(fmt.Sprintf("%s/posts", os.Getenv("URL_CLIENT_EXTERNAL")), "posts list", &response)
+	// TODO mejorar, colocar en distintos hilos la busqueda a bd
 	if err == nil {
 		results, err := findPost()
 		if err == nil {
@@ -29,7 +31,6 @@ func GetPost() ([]*model.Post, error) {
 					}
 					it.User = act
 				} else {
-
 					it.User = &model.User{
 						Id:    0,
 						Name:  "anonymous",
@@ -45,7 +46,7 @@ func GetPost() ([]*model.Post, error) {
 
 func GetCommentByPost(id string) ([]*model.Comment, error) {
 	var response []*model.Comment
-	err := fetch(fmt.Sprintf("http://jsonplaceholder.typicode.com/posts/%s/comments", id), "comments by post", &response)
+	err := fetch(fmt.Sprintf("%s/posts/%s/comments", os.Getenv("URL_CLIENT_EXTERNAL"), id), "comments by post", &response)
 	send, _ := strconv.Atoi(id)
 	locales, err := FindComment(send)
 	if err == nil {
@@ -59,7 +60,7 @@ func GetCommentByPost(id string) ([]*model.Comment, error) {
 func getUsers() (map[int]*model.User, error) {
 	users := make(map[int]*model.User)
 	var response []*model.User
-	err := fetch("http://jsonplaceholder.typicode.com/users", "users ", &response)
+	err := fetch(fmt.Sprintf("%s/users", os.Getenv("URL_CLIENT_EXTERNAL")), "users ", &response)
 	if err != nil {
 		return nil, err
 	}
