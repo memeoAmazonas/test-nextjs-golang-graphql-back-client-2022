@@ -25,6 +25,7 @@ func main() {
 	r.HandleFunc("/comment", controller.CreateComment).Methods("POST")
 	r.HandleFunc("/comment/{postId}", controller.FindComment).Methods("GET")
 
+	r.HandleFunc("/like", controller.CreateLike).Methods("POST")
 	log.Printf("client connect to http://localhost:%s/", PORT)
 	log.Fatal(http.ListenAndServe(":"+PORT, r))
 }

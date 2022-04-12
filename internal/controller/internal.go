@@ -122,3 +122,36 @@ func FindUser(w http.ResponseWriter, request *http.Request) {
 
 	json.NewEncoder(w).Encode(result)
 }
+
+func CreateLike(w http.ResponseWriter, request *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var like *model.Like
+	log.Info("Create like")
+	if err := json.NewDecoder(request.Body).Decode(&like); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Error("Create like ", err)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	created, err := client.CreateLike(like)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Error("Create like ", err)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+
+	if err := client.UpdatePostLike(like.PostId, created); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Error("Update like ", err)
+		json.NewEncoder(w).Encode(err)
+		return
+	}
+	response := "deleted"
+	if created {
+		response = "created"
+	}
+	log.Info(response + " like successfully")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
+}

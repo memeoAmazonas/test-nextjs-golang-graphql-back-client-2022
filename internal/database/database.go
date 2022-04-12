@@ -43,13 +43,29 @@ func SaveOne(client *mongo.Client, ctx context.Context, dataBase, col string, do
 	collection := client.Database(dataBase).Collection(col)
 	return collection.InsertOne(ctx, doc)
 }
-func Query(client *mongo.Client, ctx context.Context, dataBase, col string, filter bson.D) (result *mongo.Cursor, err error) {
+func Query(client *mongo.Client, ctx context.Context, dataBase, col string, filter bson.D, order *options.FindOptions) (result *mongo.Cursor, err error) {
 	collection := client.Database(dataBase).Collection(col)
-	result, err = collection.Find(ctx, filter)
+	result, err = collection.Find(ctx, filter, order)
 	return result, err
 }
 func FindOne(client *mongo.Client, ctx context.Context, dataBase, col string, filter bson.D) (result *mongo.SingleResult, err error) {
 	collection := client.Database(dataBase).Collection(col)
 	one := collection.FindOne(ctx, filter)
+	return one, nil
+}
+func UpdateOne(client *mongo.Client, ctx context.Context, dataBase, col string, condition, value bson.D) (*mongo.UpdateResult, error) {
+	collection := client.Database(dataBase).Collection(col)
+	one, err := collection.UpdateOne(ctx, condition, value)
+	if err != nil {
+		return nil, err
+	}
+	return one, nil
+}
+func DeleteOne(client *mongo.Client, ctx context.Context, dataBase, col string, condition bson.D) (*mongo.DeleteResult, error) {
+	collection := client.Database(dataBase).Collection(col)
+	one, err := collection.DeleteOne(ctx, condition)
+	if err != nil {
+		return nil, err
+	}
 	return one, nil
 }
