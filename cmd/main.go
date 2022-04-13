@@ -35,12 +35,11 @@ func main() {
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 		errs <- fmt.Errorf("%s", <-c)
 	}()
-	{
+	go func() {
 		if err := database.GetConnection(); err != nil {
-			log.Fatal("error", err)
-			return
+			errs <- err
 		}
-	}
+	}()
 
 	r := mux.NewRouter()
 	r.Use(middleware.HeaderMiddleware)
